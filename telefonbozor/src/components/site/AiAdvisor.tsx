@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Sparkles, X, Send, Bot, User, Loader2 } from "lucide-react";
-import { askGroqAI } from "@/lib/gemini";
+import { askGemini } from "@/lib/gemini";
 
 interface Message {
   id: string;
