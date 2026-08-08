@@ -1,0 +1,4 @@
+[build]
+  base = "telefonbozor"
+  command = "npm run build"
+  publish = "dist"
