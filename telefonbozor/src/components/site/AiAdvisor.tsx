@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Sparkles, X, Send, Bot, User, Loader2 } from "lucide-react";
-import { askGroqAI } from "@/lib/groq";
+import { askGroqAI } from "@/lib/gemini";
 
 interface Message {
   id: string;
@@ -54,7 +54,7 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
     setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
 
-    // 2. Groq AI orqali haqiqiy javob olish
+    // 2. Gemini AI orqali haqiqiy javob olish
     try {
       const aiResponseText = await askGroqAI(currentInput);
 
@@ -104,7 +104,7 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
               </div>
               <div>
                 <h3 className="text-sm font-bold leading-none">Onlayn Yordamchi</h3>
-                <span className="text-[10px] text-brand">Groq AI Texnologiyasi</span>
+                <span className="text-[10px] text-brand">Gemini AI Texnologiyasi</span>
               </div>
             </div>
             <button
