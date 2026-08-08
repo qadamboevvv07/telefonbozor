@@ -57,6 +57,7 @@ export function useAnnouncements() {
       ]);
       if (error) {
         console.error("E'lon qo'shishda xatolik:", error.message);
+        alert("Xatolik yuz berdi. Qayta urinib ko'ring!");
       } else {
         fetchAnnouncements();
       }
