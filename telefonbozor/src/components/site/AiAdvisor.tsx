@@ -56,8 +56,7 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
 
     // 2. Gemini AI orqali haqiqiy javob olish
     try {
-      const aiResponseText = await askGroqAI(currentInput);
-
+      const aiResponseText = await askGemini(currentInput);
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: "ai",
