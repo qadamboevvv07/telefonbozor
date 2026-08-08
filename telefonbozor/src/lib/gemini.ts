@@ -1,4 +1,4 @@
-export async function askGeminiAI(promptText: string): Promise<string> {
+export async function askGemini(promptText: string): Promise<string> {
   const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
   if (!GEMINI_API_KEY) {
