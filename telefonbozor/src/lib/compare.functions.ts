@@ -1,5 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const CompareInput = z.object({
   phoneA: z.string().min(1).max(120),
@@ -40,11 +45,21 @@ export type CompareResponse = CompareResult | CompareError;
 export const comparePhones = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => CompareInput.parse(data))
   .handler(async ({ data }): Promise<CompareResponse> => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("AI xizmati sozlanmagan.");
+    // 1. Supabase bazasidan API kalitni olamiz
+    const { data: dbData, error: dbError } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "gemini_api_key")
+      .maybeSingle();
+
+    if (dbError || !dbData?.value) {
+      throw new Error("Admin panelda AI API kalit kiritilmagan.");
+    }
+
+    const apiKey = dbData.value.trim();
 
     const system = `Siz tajribali smartfon ekspertisiz. O'zbek tilida javob berasiz.
-Foydalanuvchi telefon nomlarini qisqacha, xato yoki har xil formatda yozishi mumkin (masalan: "redmi a3", "s24", "iphone 16"). Siz ularni o'zingiz tushunib, eng mos keladigan haqiqiy rasmiy modellar sifatida qabul qilib solishtirishingiz shart. "Topilmadi" deb xato berishga shoshilmang, qaysi model nazarda tutilganini o'zingiz aniqlang.
+Foydalanuvchi telefon nomlarini qisqacha, xato yoki har xil formatda yozishi mumkin (masalan: "redmi a3", "s24", "iphone 16"). Siz ularni o'zingiz tushunib, eng mos keladigan haqiqiy rasmiy modellar sifatida qabul ko'rib solishtirishingiz shart. "Topilmadi" deb xato berishga shoshilmang, qaysi model nazarda tutilganini o'zingiz aniqlang.
 
 FAQAT quyidagi JSON strukturani qaytaring, boshqa hech qanday matn yozmang:
 
@@ -107,14 +122,17 @@ FAQAT quyidagi JSON strukturani qaytaring, boshqa hech qanday matn yozmang:
 
     const user = `Solishtir: A) ${data.phoneA}   vs   B) ${data.phoneB}`;
 
-    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // OpenRouter orqali so'rov yuborish (Gemini / Llama orqali)
+    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://telefonbozor.uz",
+        "X-Title": "Telefon Bozor",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "meta-llama/llama-3-8b-instruct:free",
         messages: [
           { role: "system", content: system },
           { role: "user", content: user },
