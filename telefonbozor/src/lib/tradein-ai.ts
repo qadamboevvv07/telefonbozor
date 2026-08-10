@@ -3,10 +3,10 @@ export async function evaluatePhoneWithAI(phoneData: {
   storage: string;
   conditionDetails: string;
 }) {
-  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-  if (!GEMINI_API_KEY) {
-    console.error("Gemini API kaliti topilmadi!");
+  if (!API_KEY) {
+    console.error("API kalit topilmadi!");
     return null;
   }
 
@@ -27,24 +27,38 @@ QOIDALAR:
 Mijoz ma'lumotlari:
 Model: ${phoneData.model}, Xotira: ${phoneData.storage}, Holati: "${phoneData.conditionDetails}". Dollarning kursi: 12,200 so'm.`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }]
-        })
-      }
-    );
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": window.location.origin,
+        "X-Title": "Telefon Bozor"
+      },
+      body: JSON.stringify({
+        model: "google/gemma-2-9b-it:free",
+        messages: [
+          {
+            role: "user",
+            content: promptText
+          }
+        ]
+      })
+    });
 
     const data = await response.json();
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
+    if (data.error) {
+      console.error("OpenRouter API Xatosi:", data.error.message || data.error);
+      return null;
+    }
+
+    const content = data.choices?.[0]?.message?.content || "";
     const cleanJson = content.replace(/```json|```/g, "").trim();
     return JSON.parse(cleanJson);
+
   } catch (error) {
-    console.error("Gemini AI orqali baholashda xato:", error);
+    console.error("OpenRouter AI orqali baholashda xato:", error);
     return null;
   }
 }

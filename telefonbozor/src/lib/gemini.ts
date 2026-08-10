@@ -1,37 +1,52 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export async function askGemini(promptText: string): Promise<string> {
-  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-  if (!GEMINI_API_KEY) {
-    console.error("VITE_GEMINI_API_KEY topilmadi!");
-    return "API kalit sozlanmagan.";
-  }
-
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: promptText }]
-            }
-          ]
-        }),
-      }
-    );
+    // Bazadan API kalitni olish
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'gemini_api_key')
+      .single();
 
-    const data = await response.json();
+    if (error || !data?.value) {
+      console.error("Supabase'dan kalit topilmadi:", error);
+      return "API kalit bazadan topilmadi.";
+    }
 
-    if (data.error) {
-      console.error("Gemini API xatosi:", data.error.message);
+    const API_KEY = data.value;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": window.location.origin,
+        "X-Title": "Telefon Bozor"
+      },
+      body: JSON.stringify({
+        model: "deepseek/deepseek-chat:free",
+        messages: [
+          {
+            role: "user",
+            content: promptText
+          }
+        ]
+      })
+    });
+
+    const resData = await response.json();
+
+    if (resData.error) {
+      console.error("OpenRouter API xatosi:", resData.error.message || resData.error);
       return "Kechirasiz, sun'iy intellekt xatosiga duch kelindi.";
     }
 
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const reply = resData.choices?.[0]?.message?.content;
     return reply || "Javob olinmadi.";
   } catch (error) {
     console.error("Tarmoq xatosi:", error);

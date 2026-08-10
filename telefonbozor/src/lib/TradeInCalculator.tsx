@@ -1,33 +1,64 @@
-{/* AI Natijasi va Qizil Ogohlantirish */}
-{result && (
-  <div className="mt-6 pt-6 border-t border-border/80 space-y-4 animate-in fade-in">
+export async function evaluatePhoneWithAI(phoneData: {
+  model: string;
+  storage: string;
+  conditionDetails: string;
+}) {
+  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-    {/* AI hisoblagan narx ko'rinadigan qism */}
-    <div className="p-4 rounded-xl bg-brand/10 border border-brand/50 text-center space-y-1">
-      <span className="text-[11px] font-semibold text-muted-foreground uppercase">
-        Sotib olish taklifimiz:
-      </span>
-      <div className="text-2xl sm:text-4xl font-black text-brand tracking-tight">
-        ~ {result.estimatedPriceUZS.toLocaleString("uz-UZ")} so'm
-        <span className="text-xs text-muted-foreground font-normal ml-1">
-          (${result.estimatedPriceUSD})
-        </span>
-      </div>
-      <p className="text-xs text-foreground/80 pt-1 leading-relaxed">
-        <strong>💡 AI Tahlili:</strong> {result.reasoning}
-      </p>
-    </div>
+  if (!API_KEY) {
+    console.error("API kalit topilmadi!");
+    return null;
+  }
 
-    {/* 🔴 AYNAN SHU YERGA TASHLOVSIZ: */}
-    <div className="p-4 rounded-xl bg-red-950/50 border-2 border-red-500 text-red-100 space-y-2 shadow-lg shadow-red-950/40">
-      <div className="flex items-center gap-2 font-black text-red-400 text-xs sm:text-sm uppercase tracking-wide">
-        <ShieldAlert className="h-5 w-5 text-red-500 shrink-0" />
-        <span>MUHIM ESLATMA / DIQQAT QILING:</span>
-      </div>
-      <p className="text-xs sm:text-sm leading-relaxed font-medium">
-        Ushbu ko'rsatilgan narx <strong>onlayn taxminiy baholash</strong> hisoblanadi. Telefoningizni usta ko'rmasdan va diagnostika qilmasdan turib aniq baholay olmaymiz! Shuning uchun do'konimizga kelganingizda va usta tekshiruvidan so'ng haqiqiy narxlar ushbu ko'rsatilgan summadan <strong>$100 - $150 farq qilishi</strong> (kamayishi yoki ko'payishi) mumkin.
-      </p>
-    </div>
+  try {
+    const promptText = `Siz "Telefon Bozor" do'konining tajribali va ehtiyotkor Trade-In baholovchisisiz.
+Vazifangiz: Mijoz bergan telefon modeli, xotirasi va holati/nuqsonlari tavsifiga qarab do'kon sotib olish narxini hisoblash.
 
-  </div>
-)}
+QOIDALAR:
+1. Telefonning real ikkilamchi bozor narxini (AQSh dollarida) aniqlang.
+2. Do'konga marja (foyda) qolishi va yashirin nuqsonlar xavfini hisobga olgan holda, real bozor narxidan 35% dan 45% gacha ARZONROQ bo'lgan "Do'kon sotib olish narxi"ni (estimatedPriceUSD) belgilang. Narxni aslo baland aytmang!
+3. Javobni FAQAT VA FAQAT TOZA JSON FORMATIDA QAYTARING (markdown bloklarisiz, masalan \`\`\`json \`\`\` belgilarsiz), boshqa hech qanday matn yozmang:
+{
+  "estimatedPriceUSD": number,
+  "estimatedPriceUZS": number,
+  "reasoning": "Do'kon sotib olish narxi nega shunday belgilangani haqida qisqa izoh"
+}
+
+Mijoz ma'lumotlari:
+Model: ${phoneData.model}, Xotira: ${phoneData.storage}, Holati: "${phoneData.conditionDetails}". Dollarning kursi: 12,200 so'm.`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": window.location.origin,
+        "X-Title": "Telefon Bozor"
+      },
+      body: JSON.stringify({
+        model: "google/gemma-2-9b-it:free",
+        messages: [
+          {
+            role: "user",
+            content: promptText
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      console.error("OpenRouter API Xatosi:", data.error.message || data.error);
+      return null;
+    }
+
+    const content = data.choices?.[0]?.message?.content || "";
+    const cleanJson = content.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanJson);
+
+  } catch (error) {
+    console.error("OpenRouter AI orqali baholashda xato:", error);
+    return null;
+  }
+}

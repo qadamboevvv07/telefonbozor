@@ -7,7 +7,6 @@ import {
   Sparkles,
   ShieldAlert,
   ArrowLeft,
-  Smartphone,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { evaluatePhoneWithAI } from "@/lib/tradein-ai";
@@ -54,7 +53,6 @@ export function TradeInCalculator() {
     setLoading(false);
   };
 
-  // Karusel va yon kartochkalar uchun singan/ishlatilgan telefon namunalari
   const brokenPhoneExamples = [
     {
       title: "iPhone 11 (Ekrani yorilgan)",
@@ -92,7 +90,6 @@ export function TradeInCalculator() {
 
   return (
     <div className="relative w-full max-w-6xl mx-auto px-4 py-4 space-y-8">
-      {/* Navigation */}
       <div className="flex items-center justify-between">
         <Link
           to="/"
@@ -105,7 +102,6 @@ export function TradeInCalculator() {
         </span>
       </div>
 
-      {/* Header */}
       <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand/10 border border-brand/30 text-brand text-xs font-bold uppercase tracking-wider">
           <Sparkles className="h-4 w-4" /> Real-vaqt AI Baholash Tizimi
@@ -118,21 +114,14 @@ export function TradeInCalculator() {
         </p>
       </div>
 
-      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-        {/* Chap taraf: Singan telefon kartochkasi */}
         <div className="hidden lg:block lg:col-span-3 space-y-4 sticky top-24">
           <div className="p-4 rounded-2xl border border-red-500/30 bg-card/80 backdrop-blur-md space-y-3">
             <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">
               Ekrani singan namuna
             </span>
             <div className="h-36 rounded-xl overflow-hidden relative border border-border">
-              <img
-                src={brokenPhoneExamples[0].img}
-                alt="Singan telefon"
-                className="w-full h-full object-cover"
-              />
+              <img src={brokenPhoneExamples[0].img} alt="Singan telefon" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-2">
                 <span className="text-xs font-bold text-white">{brokenPhoneExamples[0].title}</span>
               </div>
@@ -144,7 +133,6 @@ export function TradeInCalculator() {
           </div>
         </div>
 
-        {/* Markaz: AI Kalkulyator */}
         <div className="lg:col-span-6 relative rounded-3xl border border-brand/40 bg-gradient-to-b from-card via-card/95 to-background p-5 sm:p-8 shadow-[0_0_50px_rgba(234,179,8,0.12)] backdrop-blur-xl">
           <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/60">
             <div className="p-3 rounded-2xl bg-brand text-black font-extrabold">
@@ -197,7 +185,7 @@ export function TradeInCalculator() {
                 rows={4}
                 value={conditionDetails}
                 onChange={(e) => setConditionDetails(e.target.value)}
-                placeholder="Masalan: Ekran ustki shishasi yorilgan, sensor va face id ishlaydi, orqasida chiziqlar bor, batareya 82%..."
+                placeholder="Masalan: Ekran ustki shishasi yorilgan, sensor va face id ishlaydi..."
                 className="w-full p-3.5 rounded-xl border border-border bg-secondary/60 text-foreground outline-none focus:border-brand text-xs sm:text-sm resize-none leading-relaxed"
               />
             </div>
@@ -238,7 +226,6 @@ export function TradeInCalculator() {
               )}
             </button>
 
-            {/* AI Natijasi va Qizil Ogohlantirish */}
             {result && (
               <div className="mt-6 pt-6 border-t border-border/80 space-y-4 animate-in fade-in">
                 <div className="p-4 rounded-xl bg-brand/10 border border-brand/50 text-center space-y-1">
@@ -256,7 +243,6 @@ export function TradeInCalculator() {
                   </p>
                 </div>
 
-                {/* 🔴 SIZ SO'RAGAN KATTA QIZIL OGOHLANTIRISH BLOKI */}
                 <div className="p-4 rounded-xl bg-red-950/50 border-2 border-red-500 text-red-100 space-y-2 shadow-lg shadow-red-950/40">
                   <div className="flex items-center gap-2 font-black text-red-400 text-xs sm:text-sm uppercase tracking-wide">
                     <ShieldAlert className="h-5 w-5 text-red-500 shrink-0" />
@@ -271,18 +257,13 @@ export function TradeInCalculator() {
           </div>
         </div>
 
-        {/* O'ng taraf: Orqasi singan telefon kartochkasi */}
         <div className="hidden lg:block lg:col-span-3 space-y-4 sticky top-24">
           <div className="p-4 rounded-2xl border border-amber-500/30 bg-card/80 backdrop-blur-md space-y-3">
             <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
               Orqasi darz ketgan
             </span>
             <div className="h-36 rounded-xl overflow-hidden relative border border-border">
-              <img
-                src={brokenPhoneExamples[1].img}
-                alt="Orqasi singan telefon"
-                className="w-full h-full object-cover"
-              />
+              <img src={brokenPhoneExamples[1].img} alt="Orqasi singan" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-2">
                 <span className="text-xs font-bold text-white">{brokenPhoneExamples[1].title}</span>
               </div>
@@ -292,43 +273,6 @@ export function TradeInCalculator() {
               Sotib olish narxi: {brokenPhoneExamples[1].price}
             </div>
           </div>
-        </div>
-
-      </div>
-
-      {/* Pastdagi Namunalar Kartochkasi */}
-      <div className="space-y-4 pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-bold text-foreground">Biz Baholagan Real Telefonlar</h3>
-            <p className="text-xs text-muted-foreground">Ekrani, korpusi va xotirasiga qarab AI bergan narxlar</p>
-          </div>
-          <span className="text-xs text-brand font-semibold">Har xil holatlar &rarr;</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {brokenPhoneExamples.map((item, idx) => (
-            <div
-              key={idx}
-              className="p-4 rounded-2xl border border-border bg-card/60 backdrop-blur-md space-y-3 hover:border-brand/50 transition-all flex flex-col justify-between"
-            >
-              <div className="space-y-2">
-                <div className="h-28 rounded-xl overflow-hidden relative border border-border/50">
-                  <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
-                  <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold border ${item.color}`}>
-                    {item.tag}
-                  </span>
-                </div>
-                <h4 className="font-bold text-xs text-foreground">{item.title}</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
-              </div>
-
-              <div className="pt-2 border-t border-border/40 flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground">AI Narxi:</span>
-                <span className="text-xs font-black text-brand">{item.price}</span>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

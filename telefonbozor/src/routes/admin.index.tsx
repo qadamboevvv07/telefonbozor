@@ -55,13 +55,42 @@ function AdminPanel() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<ExtendedFormState>(emptyForm);
-  const [tab, setTab] = useState<"products" | "inquiries" | "announcements">("products");
+  const [tab, setTab] = useState<"products" | "inquiries" | "announcements" | "ai-settings">("products");
   const [visitorCount, setVisitorCount] = useState<number>(0);
+
+  // AI API kalit uchun state'lar
+  const [adminApiKey, setAdminApiKey] = useState("");
+  const [apiKeyLoading, setApiKeyLoading] = useState(false);
 
   useEffect(() => {
     const count = parseInt(localStorage.getItem("tb_total_visitors") || "0", 10);
     setVisitorCount(count);
+
+    // Bazadan mavjud AI kalitni o'qib kelish
+    async function fetchApiKey() {
+      const { data } = await supabase
+        .from("settings")
+        .select("value")
+        .eq("key", "gemini_api_key")
+        .single();
+      if (data) setAdminApiKey(data.value);
+    }
+    fetchApiKey();
   }, []);
+
+  const handleSaveApiKey = async () => {
+    setApiKeyLoading(true);
+    const { error } = await supabase
+      .from("settings")
+      .upsert({ key: "gemini_api_key", value: adminApiKey.trim() }, { onConflict: "key" });
+
+    setApiKeyLoading(false);
+    if (error) {
+      alert("Xatolik: " + error.message);
+    } else {
+      alert("API kalit muvaffaqiyatli saqlandi! Endi AI yangi kalit bilan ishlaydi.");
+    }
+  };
 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authStep, setAuthStep] = useState<"secret" | "new_credentials">("secret");
@@ -118,7 +147,6 @@ function AdminPanel() {
     }
   };
 
-  // Supabase bazasi bilan to'g'ri ishlaydigan tahrirlash va qo'shish funksiyasi
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -332,6 +360,13 @@ function AdminPanel() {
               <span className="ml-2 inline-flex items-center justify-center rounded-full bg-brand text-brand-foreground text-[10px] h-5 min-w-5 px-1.5 font-bold">{newInquiries}</span>
             )}
           </button>
+
+          <button
+            onClick={() => setTab("ai-settings")}
+            className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${tab === "ai-settings" ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            <KeyRound className="h-4 w-4 inline mr-1.5" /> AI API Sozlamalari
+          </button>
         </div>
 
         {tab === "products" && (
@@ -544,6 +579,38 @@ function AdminPanel() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {tab === "ai-settings" && (
+          <div className="mt-6 max-w-xl bg-card p-6 rounded-2xl border border-border space-y-4 shadow-md">
+            <h2 className="font-display text-xl font-bold flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-brand" /> Sun'iy Intellekt (OpenRouter) API Kaliti
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Saytdagi onlayn yordamchi (AI) ishlashi uchun ishlatiladigan kalitni shu yerdan o'zgartirishingiz mumkin. 1 yildan keyin xaridor o'zining yangi kalitini yozib "Saqlash"ni bosa olsa bas, sayt uzluksiz ishlayveradi.
+            </p>
+
+            <div className="space-y-4 pt-2">
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">OpenRouter API Key (sk-or-v1-...)</label>
+                <input
+                  type="password"
+                  value={adminApiKey}
+                  onChange={(e) => setAdminApiKey(e.target.value)}
+                  placeholder="sk-or-v1-..."
+                  className="w-full bg-background px-3 py-2 rounded-xl text-sm border border-border focus:outline-none focus:border-brand font-mono"
+                />
+              </div>
+
+              <button
+                onClick={handleSaveApiKey}
+                disabled={apiKeyLoading}
+                className="flex items-center gap-2 bg-brand text-brand-foreground font-bold px-4 py-2 rounded-xl text-sm hover:brightness-110 transition-all disabled:opacity-50"
+              >
+                {apiKeyLoading ? "Saqlanmoqda..." : "Saqlash"}
+              </button>
             </div>
           </div>
         )}

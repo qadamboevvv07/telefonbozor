@@ -43,7 +43,6 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
     const currentInput = input.trim();
     setInput("");
 
-    // 1. Foydalanuvchi xabarini ekranga chiqarish
     const userMsg: Message = {
       id: Date.now().toString(),
       sender: "user",
@@ -54,7 +53,6 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
     setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
 
-    // 2. Gemini AI orqali haqiqiy javob olish
     try {
       const aiResponseText = await askGemini(currentInput);
       const aiMsg: Message = {
@@ -81,7 +79,6 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* Pastdagi AI Tugmasi */}
       {!isOpen && (
         <button
           onClick={onOpen}
@@ -92,10 +89,8 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
         </button>
       )}
 
-      {/* Chat Oynasi */}
       {isOpen && (
         <div className="flex h-[500px] w-[340px] sm:w-[380px] flex-col overflow-hidden rounded-2xl border border-brand/30 bg-card/95 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-5">
-          {/* Header */}
           <div className="flex items-center justify-between border-b border-border bg-brand/10 px-4 py-3">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-brand-foreground">
@@ -114,7 +109,6 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
             </button>
           </div>
 
-          {/* Xabarlar ro'yxati */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.map((m) => (
               <div
@@ -155,7 +149,6 @@ export function AiAdvisor({ isOpen, onClose, onOpen }: AiAdvisorProps) {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input qismi */}
           <div className="border-t border-border p-3 bg-card">
             <form
               onSubmit={(e) => {
