@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vinxi build",
     "preview": "vite preview"
   },
   "dependencies": {
