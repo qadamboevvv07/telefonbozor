@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vinxi build",
+    "build": "node ./node_modules/vinxi/bin/cli.mjs build",
     "preview": "vite preview"
   },
   "dependencies": {
