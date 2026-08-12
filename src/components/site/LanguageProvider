@@ -1,0 +1,46 @@
+import { useEffect, useState, type ReactNode } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { Navbar } from "./Navbar";
+import { Footer } from "./Footer";
+import { CustomCursor } from "./CustomCursor";
+import { AiAdvisor } from "./AiAdvisor";
+import { LanguageProvider } from "./LanguageSelector";
+
+export function SiteShell({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+  const [isAiOpen, setIsAiOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        navigate({ to: "/admin/login" });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [navigate]);
+
+  return (
+    <LanguageProvider>
+      <div className="relative min-h-screen flex flex-col bg-background text-foreground overflow-hidden">
+        <CustomCursor />
+
+        {/* Navbar ga AI ni ochish funksiyasi berildi */}
+        <Navbar onOpenAi={() => setIsAiOpen(true)} />
+
+        <main className="flex-1 relative z-0">{children}</main>
+
+        {/* AI Jon komponenti */}
+        <AiAdvisor
+          isOpen={isAiOpen}
+          onClose={() => setIsAiOpen(false)}
+          onOpen={() => setIsAiOpen(true)}
+        />
+
+        <Footer />
+      </div>
+    </LanguageProvider>
+  );
+}
