@@ -19,7 +19,8 @@ import { SITE } from "@/lib/site-data";
 import { useProducts, formatPrice } from "@/lib/products-store";
 import { LanguageSelector, useLanguage } from "./LanguageSelector";
 
-export function Navbar() {
+export function Navbar({ onOpenAi }: { onOpenAi?: () => void } = {}) {
+  void onOpenAi;
   const { t } = useLanguage();
   const { products } = useProducts();
   const navigate = useNavigate();

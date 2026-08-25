@@ -434,5 +434,4 @@ function WinnerBadge({ winner, nameA, nameB }: { winner: "A" | "B" | "Teng"; nam
   );
 }
 
-export type { CompareSpec };
 void XIcon;
